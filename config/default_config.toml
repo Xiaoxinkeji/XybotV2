@@ -1,0 +1,79 @@
+# XyBotV2 配置文件
+# 此文件包含所有可配置选项及默认值
+
+[core]
+version = "2.0.0"                   # 版本号
+name = "XyBot"                      # 机器人名称
+timezone = "Asia/Shanghai"          # 时区设置
+auto_restart = false                # 配置变更自动重启
+
+[wechat]
+port = 9000                         # WechatAPI服务器端口
+mode = "release"                    # 运行模式：release/debug
+ignore_protection = false           # 是否忽略风控保护机制
+
+[wechat.redis]
+host = "127.0.0.1"                  # Redis服务器地址
+port = 6379                         # Redis端口
+password = ""                       # Redis密码
+db = 0                              # Redis数据库编号
+
+[web]
+enabled = true                      # 是否启用Web管理界面
+port = 8080                         # Web服务器端口
+host = "0.0.0.0"                    # 监听地址
+debug = false                       # 是否启用调试模式
+static_path = "web_ui/dist"         # 静态文件目录路径
+
+[web.auth]
+token_expire_hours = 24             # 令牌过期时间（小时）
+allow_api_key = true                # 是否允许使用API Key
+api_key_expire_days = 90            # API Key过期时间（天）
+max_login_attempts = 5              # 最大登录尝试次数
+login_timeout_minutes = 30          # 登录超时时间（分钟）
+
+[web.security]
+enable_cors = true                  # 是否启用CORS
+cors_allow_origins = ["*"]          # 允许的源
+require_https = false               # 是否要求HTTPS连接
+ssl_cert = ""                       # SSL证书路径
+ssl_key = ""                        # SSL密钥路径
+secure_cookies = false              # 是否使用安全Cookie（仅HTTPS）
+
+[web.websocket]
+enabled = true                      # 是否启用WebSocket
+ping_interval = 30                  # 心跳间隔（秒）
+max_clients = 50                    # 最大客户端连接数
+stats_update_interval = 5000        # 状态更新间隔（毫秒）
+
+[web.redis]
+inherit_from_wechat = true          # 使用与WechatAPI相同的Redis配置
+
+[storage]
+# 数据存储配置
+type = "sqlite"                     # 数据库类型：sqlite/mysql
+sqlite_path = "data/xybot.db"       # SQLite数据库路径
+
+# MySQL配置（当type=mysql时使用）
+mysql_host = "localhost"
+mysql_port = 3306
+mysql_user = "root"
+mysql_password = ""
+mysql_database = "xybot"
+
+[logging]
+level = "INFO"                      # 日志级别：DEBUG/INFO/WARNING/ERROR/CRITICAL
+format = "[%(asctime)s] [%(levelname)s] %(message)s"
+path = "logs/xybot.log"             # 日志文件路径
+max_size = 10                       # 单个日志文件最大大小（MB）
+backup_count = 5                    # 保留的日志文件数量
+
+[plugins]
+enabled = true                      # 是否启用插件系统
+directory = "plugins"               # 插件目录
+disabled = []                       # 禁用的插件列表
+
+[message_filter]
+mode = "None"                       # 消息过滤模式：None/Whitelist/Blacklist
+whitelist = []                      # 白名单列表
+blacklist = []                      # 黑名单列表 

@@ -1,14 +1,30 @@
+version: '3'
+
 services:
-  xybotv2:
-    image: henryxiaoyang/xybotv2:latest
-    container_name: XYBotV2
-    restart: on-failure:3
+  xybot:
+    build: .
+    container_name: xybot
+    restart: unless-stopped
+    ports:
+      - "8080:8080"  # Web界面
+      - "9000:9000"  # WechatAPI
+    depends_on:
+      - redis
     volumes:
-      - xybotv2:/app
-      - redis_data:/var/lib/redis
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./plugins:/app/plugins
+      - ./config:/app/config
+    environment:
+      - TZ=Asia/Shanghai
+
+  redis:
+    image: redis:6-alpine
+    container_name: xybot-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
 
 volumes:
-  redis_data:
-    name: redis_data
-  xybotv2:
-    name: xybotv2
+  redis-data:

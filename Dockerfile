@@ -1,33 +1,32 @@
-FROM python:3.11-slim
+FROM python:3.9-slim
 
 # 设置工作目录
 WORKDIR /app
 
-# 设置环境变量
-ENV TZ=Asia/Shanghai
-ENV IMAGEIO_FFMPEG_EXE=/usr/bin/ffmpeg
-
-# 安装系统依赖
+# 安装依赖
 RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    redis-server \
+    build-essential \
+    nodejs \
+    npm \
+    git \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# 复制 Redis 配置
-COPY redis.conf /etc/redis/redis.conf
+# 复制项目文件
+COPY . /app/
 
-# 复制依赖文件
-COPY requirements.txt .
-
-# 安装 Python 依赖
+# 安装Python依赖
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 复制应用代码
-COPY . .
+# 构建Web UI
+RUN chmod +x build_web_ui.sh && ./build_web_ui.sh
 
-# 启动脚本
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
+# 设置环境变量
+ENV PYTHONUNBUFFERED=1
 
-CMD ["./entrypoint.sh"]
+# 暴露端口 - Web界面和WechatAPI服务器
+EXPOSE 8080 9000
+
+# 启动命令
+CMD ["python", "main.py"]
 

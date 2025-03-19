@@ -1,7 +1,7 @@
 [WechatAPIServer]
 port = 9000                # WechatAPI服务器端口，默认9000，如有冲突可修改
 mode = "release"           # 运行模式：release(生产环境)，debug(调试模式)
-redis-host = "127.0.0.1"   # Redis服务器地址，本地使用127.0.0.1
+redis-host = "redis"       # Redis服务器地址，修改为docker-compose中的服务名
 redis-port = 6379          # Redis端口，默认6379
 redis-password = ""        # Redis密码，如果有设置密码则填写
 redis-db = 0               # Redis数据库编号，默认0
@@ -43,3 +43,70 @@ blacklist = [# 黑名单列表
     "333@chatroom", # 群聊ID
     "444@chatroom"
 ]
+
+# XyBotV2主配置文件
+
+[bot]
+name = "XyBot"
+version = "2.0.0"
+admin_qq = 12345678  # 管理员QQ号
+command_prefix = "/"
+log_level = "INFO"
+plugins_dir = "plugins"
+data_dir = "data"
+
+[web]
+# Web管理界面配置
+enabled = true                   # 是否启用Web管理界面
+port = 8080                      # Web服务器端口
+host = "0.0.0.0"                 # 监听地址，0.0.0.0表示所有地址
+debug = false                    # 是否启用调试模式
+static_path = "web_ui/dist"      # 静态文件目录路径
+
+[web.auth]
+# 认证相关配置
+token_expire_hours = 24          # 令牌过期时间（小时）
+allow_api_key = true             # 是否允许使用API Key
+api_key_expire_days = 90         # API Key过期时间（天）
+session_cookie_name = "xybot_session"
+auth_config_path = "config/auth.json"  # 认证配置文件路径
+max_login_attempts = 5           # 最大登录尝试次数
+login_timeout_minutes = 30       # 登录超时时间（分钟）
+
+[web.security]
+# Web安全相关配置
+enable_cors = true               # 是否启用CORS
+cors_allow_origins = ["*"]       # 允许的源，*表示所有
+require_https = false            # 是否要求HTTPS连接
+ssl_cert = ""                    # SSL证书路径（如果启用HTTPS）
+ssl_key = ""                     # SSL密钥路径（如果启用HTTPS）
+secure_cookies = false           # 是否使用安全Cookie（仅HTTPS）
+
+[web.websocket]
+# WebSocket相关配置
+enabled = true                   # 是否启用WebSocket
+ping_interval = 30               # 心跳间隔（秒）
+max_clients = 50                 # 最大客户端连接数
+stats_update_interval = 5000     # 状态更新间隔（毫秒）
+
+[web.redis]
+# Web管理界面使用与WechatAPIServer相同的Redis配置
+inherit_from_api = true  # 如果设为true，将使用WechatAPIServer的Redis配置
+
+[database]
+type = "sqlite"
+path = "data/xybot.db"
+# MySQL配置，如果使用MySQL则启用以下配置
+# type = "mysql"
+# host = "localhost"
+# port = 3306
+# user = "root"
+# password = "password"
+# database = "xybot"
+
+[log]
+level = "INFO"
+format = "[%(asctime)s] [%(levelname)s] %(message)s"
+path = "logs/xybot.log"
+max_size = 10  # MB
+backup_count = 5

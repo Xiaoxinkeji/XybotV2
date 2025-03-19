@@ -220,3 +220,36 @@ async def bot_core():
                 asyncio.create_task(xybot.process_message(message))
         # 使用异步睡眠替代忙等待循环
         await asyncio.sleep(0.5)
+
+    # 在bot_core.py中的相关部分添加
+
+    def _load_config(self, config_path):
+        """加载配置文件"""
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = tomllib.load(f)
+                # 提取Web配置
+                self.web_config = config.get('web', {})
+                self.web_enabled = self.web_config.get('enabled', True)
+                # 其他配置...
+                return config
+        except Exception as e:
+            self.logger.error(f"加载配置文件出错: {e}")
+            return {}
+
+    async def start_web_server(self):
+        """根据配置启动Web服务器"""
+        if not self.web_enabled:
+            self.logger.info("Web管理界面已在配置中禁用")
+            return
+        
+        from .web_server import XyBotWebServer
+        
+        # 确保机器人实例有可用的Redis客户端
+        if not hasattr(self, 'api') or not hasattr(self.api, 'redis_client'):
+            self.logger.error("Web服务器需要Redis客户端，但未找到可用的Redis连接")
+            return
+        
+        self.web_server = XyBotWebServer(self, config_path=self.config_path)
+        self.web_runner = await self.web_server.start()
+        self.logger.info(f"Web管理界面已启动，端口: {self.web_server.port}")

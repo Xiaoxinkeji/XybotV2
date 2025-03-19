@@ -11,6 +11,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from bot_core import bot_core
+from web_server import XyBotWebServer
 
 
 def is_api_message(record):
@@ -81,6 +82,17 @@ async def main():
         observer.start()
 
         try:
+            # 初始化机器人实例
+            bot = XyBot(config)
+            
+            # 添加Web服务器
+            web_port = config.get("web_server", {}).get("port", 8080)
+            web_enabled = config.get("web_server", {}).get("enabled", True)
+            
+            if web_enabled:
+                web_server = XyBotWebServer(bot, web_port)
+                web_runner = await web_server.start()
+            
             await bot_core()
         except KeyboardInterrupt:
             logger.info("收到终止信号，正在关闭...")
@@ -97,6 +109,17 @@ async def main():
     else:
         # 直接运行主程序，不启用监控
         try:
+            # 初始化机器人实例
+            bot = XyBot(config)
+            
+            # 添加Web服务器
+            web_port = config.get("web_server", {}).get("port", 8080)
+            web_enabled = config.get("web_server", {}).get("enabled", True)
+            
+            if web_enabled:
+                web_server = XyBotWebServer(bot, web_port)
+                web_runner = await web_server.start()
+            
             await bot_core()
         except KeyboardInterrupt:
             logger.info("收到终止信号，正在关闭...")
