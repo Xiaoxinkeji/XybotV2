@@ -19,14 +19,20 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# 复制 Redis 配置
-COPY redis.conf /etc/redis/redis.conf || echo "Redis配置文件不存在，使用默认配置"
+# 复制 Redis 配置（如果存在）
+COPY redis.conf* /tmp/
+RUN if [ -f "/tmp/redis.conf" ]; then \
+    mv /tmp/redis.conf /etc/redis/redis.conf; \
+    else \
+    echo "Redis配置文件不存在，使用默认配置"; \
+    fi
 
 # 复制项目文件
 COPY . /app/
 
 # 安装Python依赖
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir tomli==2.0.1
 
 # 构建Web UI
 RUN chmod +x build_web_ui.sh && ./build_web_ui.sh
@@ -34,10 +40,15 @@ RUN chmod +x build_web_ui.sh && ./build_web_ui.sh
 # 暴露端口 - Web界面和WechatAPI服务器
 EXPOSE 8080 9000
 
-# 启动脚本
-COPY entrypoint.sh . || echo "entrypoint.sh不存在，将使用直接命令启动"
-RUN if [ -f "entrypoint.sh" ]; then chmod +x entrypoint.sh; fi
+# 复制启动脚本（如果存在）
+COPY entrypoint.sh* /tmp/
+RUN if [ -f "/tmp/entrypoint.sh" ]; then \
+    mv /tmp/entrypoint.sh ./entrypoint.sh && \
+    chmod +x entrypoint.sh; \
+    else \
+    echo "entrypoint.sh不存在，将使用直接命令启动"; \
+    fi
 
-# 启动命令 - 如果entrypoint.sh存在则使用，否则直接启动python
+# 启动命令
 CMD if [ -f "entrypoint.sh" ]; then ./entrypoint.sh; else python main.py; fi
 

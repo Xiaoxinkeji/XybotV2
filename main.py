@@ -2,7 +2,6 @@ import asyncio
 import os
 import sys
 import time
-import tomllib
 import traceback
 from pathlib import Path
 
@@ -12,6 +11,12 @@ from watchdog.observers import Observer
 
 from bot_core import bot_core
 from web_server import XyBotWebServer
+
+try:
+    import tomllib
+except ModuleNotFoundError:
+    # Python 3.10及更早版本的替代方案
+    import tomli as tomllib
 
 
 def is_api_message(record):
